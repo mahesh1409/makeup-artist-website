@@ -62,11 +62,11 @@ const Home = () => {
   };
 
   // helper: chunk array into groups of size n
-  const chunk = (arr, n) => {
+/*   const chunk = (arr, n) => {
     const res = [];
     for (let i = 0; i < arr.length; i += n) res.push(arr.slice(i, i + n));
     return res;
-  };
+  }; */
 
   // set itemsPerSlide responsive
   useEffect(() => {
@@ -96,7 +96,7 @@ const Home = () => {
     }, 4500);
     return () => clearInterval(id);
   }, [testimonials, itemsPerSlide]);
-
+/* 
   useEffect(() => {
     fetchReels();
     fetchServices();
@@ -104,7 +104,19 @@ const Home = () => {
     const handler = () => fetchReels();
     window.addEventListener('reelsUpdated', handler);
     return () => window.removeEventListener('reelsUpdated', handler);
-  }, []);
+  }, []); */
+  useEffect(() => {
+  fetchReels();
+  fetchServices();
+  fetchTestimonials();
+
+  const handler = () => fetchReels();
+  window.addEventListener('reelsUpdated', handler);
+
+  return () => window.removeEventListener('reelsUpdated', handler);
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
 
   return (
     <div className="pt-20">
