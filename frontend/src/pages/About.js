@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaAward, FaHeart, FaStar } from 'react-icons/fa';
-import hardikaImg from '../assets/hardika_makeoover.jpeg';
+/* import { FaAward, FaHeart, FaStar } from 'react-icons/fa';
+ */import hardikaImg from '../assets/hardika_makeoover.jpeg';
 
 const About = () => {
   useEffect(() => {
