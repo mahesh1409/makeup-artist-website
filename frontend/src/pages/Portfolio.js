@@ -22,6 +22,7 @@ const Portfolio = () => {
 
   useEffect(() => {
     fetchPortfolio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory]);
 
   const fetchPortfolio = async () => {
