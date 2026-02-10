@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { portfolioAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import ReactPlayer from 'react-player';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
+/* import ReactPlayer from 'react-player';
+ */import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { FaTimes } from 'react-icons/fa';
 
