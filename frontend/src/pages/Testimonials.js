@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { testimonialsAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -8,12 +8,17 @@ const Testimonials = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  /* useEffect(() => {
     window.scrollTo(0, 0);
     fetchTestimonials();
   }, []);
+ */
+  useEffect(() => {
+  window.scrollTo(0, 0);
+  fetchTestimonials();
+}, [fetchTestimonials]);
 
-  const fetchTestimonials = async () => {
+  /* const fetchTestimonials = async () => {
     try {
       setLoading(true);
       const response = await testimonialsAPI.getAll();
@@ -26,6 +31,19 @@ const Testimonials = () => {
       setLoading(false);
     }
   };
+ */
+  const fetchTestimonials = useCallback(async () => {
+  try {
+    setLoading(true);
+    const response = await testimonialsAPI.getAll();
+    setTestimonials(response.data);
+  } catch (err) {
+    console.error('Failed to fetch testimonials:', err);
+    setTestimonials(getDefaultTestimonials());
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   const getDefaultTestimonials = () => [
     {
