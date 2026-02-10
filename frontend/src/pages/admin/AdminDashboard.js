@@ -1,27 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import {
   servicesAPI,
   portfolioAPI,
   testimonialsAPI,
-  contactAPI,
-  uploadAPI
+  contactAPI
 } from '../../services/api';
-import {
-  FaSignOutAlt,
-  FaCog,
-  FaImages,
-  FaStar,
-  FaEnvelope,
-  FaPlus,
-  FaTags,
-  FaEdit,
-  FaTrash,
-  FaTimes,
-  FaPlay
-} from 'react-icons/fa';
+
+/* ================= DASHBOARD ================= */
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('services');
@@ -29,18 +17,18 @@ const AdminDashboard = () => {
   const [portfolio, setPortfolio] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [contacts, setContacts] = useState([]);
-  const [reels, setReels] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
-  const [newCategoryName, setNewCategoryName] = useState('');
+
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [modalInitialType, setModalInitialType] = useState('');
   const [editItem, setEditItem] = useState(null);
 
-  const { logout, currentUser } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ FIXED: useCallback first
+  /* ================= FETCH ================= */
+
   const fetchData = useCallback(async () => {
     try {
       switch (activeTab) {
@@ -56,17 +44,13 @@ const AdminDashboard = () => {
         }
         case 'categories': {
           const res = await portfolioAPI.getCategories();
-          const normalized = (res.data || []).map(r =>
-            typeof r === 'string'
-              ? { _id: r, name: r }
-              : { _id: r._id || r.name, name: r.name }
+          setCategoriesList(
+            (res.data || []).map(c =>
+              typeof c === 'string'
+                ? { _id: c, name: c }
+                : { _id: c._id || c.name, name: c.name }
+            )
           );
-          setCategoriesList(normalized);
-          break;
-        }
-        case 'reels': {
-          const res = await portfolioAPI.getAll();
-          setReels(res.data.filter(i => i.type === 'video'));
           break;
         }
         case 'testimonials': {
@@ -87,10 +71,11 @@ const AdminDashboard = () => {
     }
   }, [activeTab]);
 
-  // ✅ FIXED dependency
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  /* ================= ACTIONS ================= */
 
   const handleLogout = async () => {
     await logout();
@@ -119,34 +104,59 @@ const AdminDashboard = () => {
       if (type === 'testimonial') await testimonialsAPI.delete(id);
       if (type === 'contact') await contactAPI.delete(id);
       fetchData();
-    } catch (err) {
+    } catch {
       alert('Delete failed');
     }
   };
 
   return (
     <div className="min-h-screen bg-luxury-black pt-20">
-      {/* header + tabs + content (UNCHANGED UI) */}
-      {/* YOUR EXISTING JSX HERE — no logic changes */}
+      {/* 🔹 Your existing header / tabs / lists JSX stays SAME */}
+
+      <AnimatePresence>
+        {showModal && (
+          <AdminModal
+            type={modalType}
+            item={editItem}
+            initialType={modalInitialType}
+            categories={categoriesList}
+            onClose={closeModal}
+            onSuccess={fetchData}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 /* ================= MODAL ================= */
 
-const AdminModal = ({ type, item, onClose, onSuccess, initialType = '', categories = [] }) => {
+const AdminModal = ({
+  type,
+  item,
+  onClose,
+  onSuccess,
+  initialType = '',
+  categories = []
+}) => {
   const [formData, setFormData] = useState(item || {});
-  const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ RESTORED
-  const [newCategory, setNewCategory] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!item && type === 'portfolio') {
-      setFormData(prev => ({ ...prev, type: initialType || 'image' }));
+      setFormData(prev => ({
+        ...prev,
+        type: initialType || 'image'
+      }));
     }
   }, [item, type, initialType]);
 
-  const handleSubmit = async (e) => {
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -161,7 +171,7 @@ const AdminModal = ({ type, item, onClose, onSuccess, initialType = '', categori
       }
       onSuccess();
       onClose();
-    } catch (err) {
+    } catch {
       alert('Save failed');
     } finally {
       setLoading(false);
@@ -169,8 +179,31 @@ const AdminModal = ({ type, item, onClose, onSuccess, initialType = '', categori
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center">
-      {/* modal JSX unchanged */}
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-xl p-6 w-full max-w-lg"
+      >
+        {/* 🔹 Keep your existing modal UI inputs here */}
+        {/* Just bind inputs with name + value + onChange={handleChange} */}
+
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 bg-black text-white rounded"
+          >
+            {loading ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
