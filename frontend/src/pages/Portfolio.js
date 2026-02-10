@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { portfolioAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -15,17 +15,15 @@ const Portfolio = () => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchPortfolio();
-    fetchCategories();
-  }, []);
+  window.scrollTo(0, 0);
+  fetchCategories();
+}, [fetchCategories]);
 
-  useEffect(() => {
-    fetchPortfolio();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory]);
+useEffect(() => {
+  fetchPortfolio();
+}, [fetchPortfolio]);
 
-  const fetchPortfolio = async () => {
+  /* const fetchPortfolio = async () => {
     try {
       setLoading(true);
       const response = await portfolioAPI.getAll(selectedCategory);
@@ -52,6 +50,32 @@ const Portfolio = () => {
       setCategories(['All', 'Bridal', 'Editorial', 'Fashion', 'Red Carpet']);
     }
   };
+ */
+  const fetchPortfolio = useCallback(async () => {
+  try {
+    setLoading(true);
+    const response = await portfolioAPI.getAll(selectedCategory);
+    const items = (response.data || []).filter(it => it.type !== 'video');
+    setPortfolioItems(items);
+  } catch (err) {
+    console.error('Failed to fetch portfolio:', err);
+    setPortfolioItems(getDefaultPortfolio());
+  } finally {
+    setLoading(false);
+  }
+}, [selectedCategory]);
+
+const fetchCategories = useCallback(async () => {
+  try {
+    const response = await portfolioAPI.getCategories();
+    const raw = response.data || [];
+    const names = raw.map(r => (typeof r === 'string' ? r : r.name));
+    setCategories(['All', ...names]);
+  } catch (err) {
+    console.error('Failed to fetch categories:', err);
+    setCategories(['All', 'Bridal', 'Editorial', 'Fashion', 'Red Carpet']);
+  }
+}, []);
 
   const getDefaultPortfolio = () => [
     {
