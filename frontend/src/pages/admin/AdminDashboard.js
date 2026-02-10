@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import {
   servicesAPI,
@@ -13,6 +13,7 @@ import {
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('services');
+
   const [services, setServices] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
@@ -34,12 +35,12 @@ const AdminDashboard = () => {
       switch (activeTab) {
         case 'services': {
           const res = await servicesAPI.getAll();
-          setServices(res.data);
+          setServices(res.data || []);
           break;
         }
         case 'portfolio': {
           const res = await portfolioAPI.getAll();
-          setPortfolio(res.data);
+          setPortfolio(res.data || []);
           break;
         }
         case 'categories': {
@@ -55,12 +56,12 @@ const AdminDashboard = () => {
         }
         case 'testimonials': {
           const res = await testimonialsAPI.getAll();
-          setTestimonials(res.data);
+          setTestimonials(res.data || []);
           break;
         }
         case 'contacts': {
           const res = await contactAPI.getAll();
-          setContacts(res.data);
+          setContacts(res.data || []);
           break;
         }
         default:
@@ -109,10 +110,77 @@ const AdminDashboard = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-luxury-black pt-20">
-      {/* 🔹 Your existing header / tabs / lists JSX stays SAME */}
+  /* ================= UI ================= */
 
+  const renderList = (items, type) => (
+    <div className="space-y-3">
+      {items.map(item => (
+        <div
+          key={item._id}
+          className="flex justify-between items-center bg-white/10 p-3 rounded"
+        >
+          <span>{item.title || item.name || item.clientName}</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => openModal(type, item)}
+              className="px-3 py-1 bg-blue-600 rounded"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDelete(type, item._id)}
+              className="px-3 py-1 bg-red-600 rounded"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-luxury-black pt-20 text-white px-6">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-600 rounded"
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-3 mb-6">
+        {['services', 'portfolio', 'categories', 'testimonials', 'contacts'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 rounded ${
+              activeTab === tab ? 'bg-gold text-black' : 'bg-white/10'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+        <button
+          onClick={() => openModal(activeTab)}
+          className="ml-auto px-4 py-2 bg-green-600 rounded"
+        >
+          + Add
+        </button>
+      </div>
+
+      {/* Content */}
+      {activeTab === 'services' && renderList(services, 'service')}
+      {activeTab === 'portfolio' && renderList(portfolio, 'portfolio')}
+      {activeTab === 'categories' && renderList(categoriesList, 'category')}
+      {activeTab === 'testimonials' && renderList(testimonials, 'testimonial')}
+      {activeTab === 'contacts' && renderList(contacts, 'contact')}
+
+      {/* Modal */}
       <AnimatePresence>
         {showModal && (
           <AdminModal
@@ -144,10 +212,7 @@ const AdminModal = ({
 
   useEffect(() => {
     if (!item && type === 'portfolio') {
-      setFormData(prev => ({
-        ...prev,
-        type: initialType || 'image'
-      }));
+      setFormData(prev => ({ ...prev, type: initialType || 'image' }));
     }
   }, [item, type, initialType]);
 
@@ -179,32 +244,38 @@ const AdminModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+    >
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl p-6 w-full max-w-lg"
+        className="bg-white text-black rounded-xl p-6 w-full max-w-lg"
       >
-        {/* 🔹 Keep your existing modal UI inputs here */}
-        {/* Just bind inputs with name + value + onChange={handleChange} */}
+        <h2 className="text-xl font-bold mb-4">
+          {item ? 'Edit' : 'Add'} {type}
+        </h2>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded"
-          >
+        <input
+          name="title"
+          value={formData.title || ''}
+          onChange={handleChange}
+          placeholder="Title"
+          className="w-full mb-4 p-2 border rounded"
+        />
+
+        <div className="flex justify-end gap-3">
+          <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">
             Cancel
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-black text-white rounded"
-          >
+          <button type="submit" disabled={loading} className="px-4 py-2 bg-black text-white rounded">
             {loading ? 'Saving...' : 'Save'}
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
