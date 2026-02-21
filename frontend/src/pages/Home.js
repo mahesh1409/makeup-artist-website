@@ -215,7 +215,7 @@ const Home = () => {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="w-3 h-3 rounded-full bg-luxury-gold mt-1" />
-                    <span className="text-gray-200">100+ Happy Clients</span>
+                    <span className="text-gray-200">200+ Happy Clients</span>
                   </li>
                 </ul>
               </div>
