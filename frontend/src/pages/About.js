@@ -100,7 +100,7 @@ const About = () => {
                 </div>
                 <div className="text-center">
                   <FaHeart className="text-luxury-gold text-3xl mx-auto mb-2" />
-                  <p className="text-3xl font-bold text-luxury-gold">100+</p>
+                  <p className="text-3xl font-bold text-luxury-gold">200+</p>
                   <p className="text-sm text-gray-400">Happy Clients</p>
                 </div>
                 {/* <div className="text-center">
