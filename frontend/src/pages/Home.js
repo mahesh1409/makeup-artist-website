@@ -347,13 +347,13 @@ const Home = () => {
            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
   {latestPhotos.map((p) => (
     <div key={p._id || p.id} className="luxury-card overflow-hidden group">
-      <div className="relative aspect-[3/4] overflow-hidden">
-        <img
-          src={p.mediaUrl}
-          alt={p.title || 'Photo'}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
+      <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
+  <img
+    src={p.mediaUrl}
+    alt={p.title || 'Photo'}
+    className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+  />
+</div>
     </div>
   ))}
 </div>
