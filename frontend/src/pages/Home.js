@@ -344,21 +344,19 @@ const Home = () => {
               <p className="text-gray-400 max-w-2xl mx-auto">A selection of our most recent stills</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-              {latestPhotos.length === 0 && (
-                <div className="text-gray-400 col-span-full">No photos available yet.</div>
-              )}
-              {latestPhotos.map((p) => (
-                <div key={p._id || p.id} className="luxury-card overflow-hidden">
-                  <div className="relative h-48 overflow-hidden">
-                    <img src={p.mediaUrl} alt={p.title || 'Photo'} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="p-3">
-                    {/* Title intentionally hidden on Home latest photos */}
-                  </div>
-                </div>
-              ))}
-            </div>
+           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+  {latestPhotos.map((p) => (
+    <div key={p._id || p.id} className="luxury-card overflow-hidden group">
+      <div className="relative aspect-[3/4] overflow-hidden">
+        <img
+          src={p.mediaUrl}
+          alt={p.title || 'Photo'}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+    </div>
+  ))}
+</div>
           </motion.div>
         </div>
       </section>
